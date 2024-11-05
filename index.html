@@ -12,9 +12,6 @@
             
         }
         #napok{
-            grid-column: 1/7;
-        }
-        #napok{
             display: grid;
             grid-template-columns: auto auto auto auto auto auto auto;
         }
@@ -23,11 +20,14 @@
 </head>
 <body>
     <header id="naptar">
-        <div id="naptarlec"><button>Előző hónap</button><h3 id="datum">asd</h3><button>Következő hónap</button></div>
+        <div id="naptarlec"><button>Előző hónap</button><h3 id="datum"></h3><button>Következő hónap</button></div>
         <div id="napok"><div id="hetfo">hetfo</div><div id="kedd">kedd</div><div id="szerda">szerda</div><div id="csutortok">csutortok</div><div id="pentek">pentek</div><div id="szombat">szombat</div><div id="vasarnap">vasarnap</div></div>
     </header>
     <script>
-
+        let datum1=document.getElementById(datum);
+        let date= new Date();
+        datum.innerText=date.getFullYear()+". "+date.getMonth()+". "+date.getDay()+".";
+        
     </script>
 </body>
 </html>
