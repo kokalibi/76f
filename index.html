@@ -16,21 +16,19 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
         }
 
-        .calendar {
+        .naptar {
             width: 90%;
             max-width: 500px;
-            border: 1px solid #ddd;
+            border: 1px solid gray;
             border-radius: 8px;
             padding: 10px;
             text-align: center;
-            background-color: #fff;
+            background-color: rgb(114, 90, 39);
         }
 
-        .calendar-header {
+        .naptar-fejlec {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -39,41 +37,38 @@
 
         button {
             padding: 5px 10px;
-            cursor: pointer;
             border-radius: 5px;
-            border: 1px solid #ddd;
-            background-color: #f4f4f4;
+            border: 1px solid;
         }
 
-        .weekdays, .days-grid {
+        .napok, .nap-racs {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 5px;
             margin-top: 10px;
         }
 
-        .weekdays div, .days-grid div {
+        .napok div, .nap-racs div {
             padding: 10px;
             font-weight: bold;
             text-align: center;
         }
 
-        .days-grid div {
+        .nap-racs div {
             min-height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #e9e9e9;
+            background-color: white;
             border-radius: 4px;
         }
 
-        .current-day {
-            background-color: #87cefa;
+        .aktualis-nap {
             font-weight: bold;
-            color: #fff;
+            color: red;
         }
 
-        .modal {
+        .modalis {
             display: none;
             position: fixed;
             top: 0;
@@ -85,7 +80,7 @@
             align-items: center;
         }
 
-        .modal-content {
+        .modalis-tartalom {
             background: white;
             padding: 20px;
             border-radius: 5px;
@@ -93,8 +88,7 @@
             width: 100%;
         }
 
-        .close-btn {
-            cursor: pointer;
+        .bezar-gomb {
             font-size: 20px;
             float: right;
         }
@@ -102,14 +96,14 @@
     </style>
 </head>
 <body>
-    <div class="calendar">
-        <header class="calendar-header">
-            <button id="prev-month">Előző hónap</button>
-            <h2 id="month-year">Január 2023</h2>
-            <button id="next-month">Következő hónap</button>
+    <div class="naptar">
+        <header class="naptar-fejlec">
+            <button id="elozo-honap">Előző hónap</button>
+            <h2 id="honap-ev">Január 2023</h2>
+            <button id="kovetkezo-honap">Következő hónap</button>
         </header>
         
-        <div class="weekdays">
+        <div class="napok">
             <div>H</div>
             <div>K</div>
             <div>Sze</div>
@@ -119,104 +113,104 @@
             <div>V</div>
         </div>
         
-        <div class="days-grid" id="days-grid"></div>
+        <div class="nap-racs" id="nap-racs"></div>
     </div>
 
-    <div id="event-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
+    <div id="esemeny-modalis" class="modalis">
+        <div class="modalis-tartalom">
+            <span class="bezar-gomb">&times;</span>
             <h3>Esemény hozzáadása</h3>
-            <form id="event-form">
-                <input type="text" id="event-name" placeholder="Esemény neve" required>
-                <input type="date" id="event-date" required>
+            <form id="esemeny-form">
+                <input type="text" id="esemeny-nev" placeholder="Esemény neve" required>
+                <input type="date" id="esemeny-datum" required>
                 <button type="submit">Mentés</button>
             </form>
         </div>
     </div>
 
     <script>
-        const daysGrid = document.getElementById("days-grid");
-        const monthYear = document.getElementById("month-year");
-        const prevMonthBtn = document.getElementById("prev-month");
-        const nextMonthBtn = document.getElementById("next-month");
-        const modal = document.getElementById("event-modal");
-        const closeBtn = document.querySelector(".close-btn");
-        const eventForm = document.getElementById("event-form");
+        const napRacs = document.getElementById("nap-racs");
+        const honapEv = document.getElementById("honap-ev");
+        const elozoHonapGomb = document.getElementById("elozo-honap");
+        const kovetkezoHonapGomb = document.getElementById("kovetkezo-honap");
+        const modalis = document.getElementById("esemeny-modalis");
+        const bezarGomb = document.querySelector(".bezar-gomb");
+        const esemenyForm = document.getElementById("esemeny-form");
 
-        let date = new Date();
+        let datum = new Date();
 
-        function renderCalendar() {
-            const year = date.getFullYear();
-            const month = date.getMonth();
-            monthYear.textContent = `${date.toLocaleString('hu', { month: 'long' })} ${year}`;
+        function naptarMegjelenitese() {
+            const ev = datum.getFullYear();
+            const honap = datum.getMonth();
+            honapEv.textContent = `${datum.toLocaleString('hu', { month: 'long' })} ${ev}`;
             
-            daysGrid.innerHTML = "";
+            napRacs.innerHTML = "";
 
-            const firstDay = new Date(year, month, 1).getDay();
-            const lastDate = new Date(year, month + 1, 0).getDate();
+            const elsoNap = new Date(ev, honap, 1).getDay();
+            const utolsoDatum = new Date(ev, honap + 1, 0).getDate();
 
-            for (let i = 0; i < firstDay - 1; i++) {
-                daysGrid.appendChild(document.createElement("div"));
+            for (let i = 0; i < elsoNap - 1; i++) {
+                napRacs.appendChild(document.createElement("div"));
             }
-            for (let day = 1; day <= lastDate; day++) {
-                const dayElement = document.createElement("div");
-                dayElement.textContent = day;
-                dayElement.addEventListener("click", openModal);
-                if (day === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear()) {
-                    dayElement.classList.add("current-day");
+            for (let nap = 1; nap <= utolsoDatum; nap++) {
+                const napElem = document.createElement("div");
+                napElem.textContent = nap;
+                napElem.addEventListener("click", modalisMegnyitasa);
+                if (nap === new Date().getDate() && honap === new Date().getMonth() && ev === new Date().getFullYear()) {
+                    napElem.classList.add("aktualis-nap");
                 }
-                daysGrid.appendChild(dayElement);
+                napRacs.appendChild(napElem);
             }
         }
 
-        prevMonthBtn.addEventListener("click", () => {
-            date.setMonth(date.getMonth() - 1);
-            renderCalendar();
+        elozoHonapGomb.addEventListener("click", () => {
+            datum.setMonth(datum.getMonth() - 1);
+            naptarMegjelenitese();
         });
 
-        nextMonthBtn.addEventListener("click", () => {
-            date.setMonth(date.getMonth() + 1);
-            renderCalendar();
+        kovetkezoHonapGomb.addEventListener("click", () => {
+            datum.setMonth(datum.getMonth() + 1);
+            naptarMegjelenitese();
         });
 
-        function openModal() {
-            modal.style.display = "flex";
+        function modalisMegnyitasa() {
+            modalis.style.display = "flex";
         }
 
-        function closeModal() {
-            modal.style.display = "none";
+        function modalisBezarasa() {
+            modalis.style.display = "none";
         }
 
-        closeBtn.addEventListener("click", closeModal);
+        bezarGomb.addEventListener("click", modalisBezarasa);
         window.addEventListener("click", (e) => {
-            if (e.target == modal) closeModal();
+            if (e.target == modalis) modalisBezarasa();
         });
 
-        eventForm.addEventListener("submit", function(event) {
+        esemenyForm.addEventListener("submit", function(event) {
             event.preventDefault();
-            const eventName = document.getElementById("event-name").value;
-            const eventDate = document.getElementById("event-date").value;
+            const esemenyNev = document.getElementById("esemeny-nev").value;
+            const esemenyDatum = document.getElementById("esemeny-datum").value;
 
-            const events = JSON.parse(localStorage.getItem("events")) || {};
-            events[eventDate] = eventName;
-            localStorage.setItem("events", JSON.stringify(events));
+            const esemenyek = JSON.parse(localStorage.getItem("esemenyek")) || {};
+            esemenyek[esemenyDatum] = esemenyNev;
+            localStorage.setItem("esemenyek", JSON.stringify(esemenyek));
 
-            closeModal();
-            renderEvents();
+            modalisBezarasa();
+            esemenyekMegjelenitese();
         });
 
-        function renderEvents() {
-            const events = JSON.parse(localStorage.getItem("events")) || {};
-            document.querySelectorAll(".days-grid div").forEach(day => {
-                const dayDate = new Date(date.getFullYear(), date.getMonth(), day.textContent).toISOString().split('T')[0];
-                if (events[dayDate]) {
-                    day.classList.add("event");
-                    day.title = events[dayDate];
+        function esemenyekMegjelenitese() {
+            const esemenyek = JSON.parse(localStorage.getItem("esemenyek")) || {};
+            document.querySelectorAll(".nap-racs div").forEach(nap => {
+                const napDatum = new Date(datum.getFullYear(), datum.getMonth(), nap.textContent).toISOString().split('T')[0];
+                if (esemenyek[napDatum]) {
+                    nap.classList.add("esemeny");
+                    nap.title = esemenyek[napDatum];
                 }
             });
         }
-        renderCalendar();
-        renderEvents();
+        naptarMegjelenitese();
+        esemenyekMegjelenitese();
     </script>
 </body>
 </html>
